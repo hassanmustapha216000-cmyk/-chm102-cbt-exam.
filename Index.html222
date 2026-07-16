@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHM 102 — General Chemistry II Quiz</title>
+<style>
+  :root{
+    --ink:#1b2420;
+    --paper:#f2efe6;
+    --panel:#fffdf6;
+    --line:#d8d2bf;
+    --accent:#2f6f5e;
+    --accent-dark:#1e4a3d;
+    --amber:#c77d2e;
+    --bad:#a83e3e;
+    --good:#2f6f5e;
+    --mono: "IBM Plex Mono", "Courier New", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:32px 20px 80px;
+  }
+  header{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:16px;
+    margin-bottom:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .title-block .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent-dark);
+  }
+  h1{
+    font-size:28px;
+    margin:4px 0 0;
+    font-weight:600;
+  }
+  .meta{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#5a5a4f;
+    text-align:right;
+  }
+
+  /* progress */
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:26px;
+    font-family:var(--mono);
+    font-size:12px;
+    color:#5a5a4f;
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background:var(--line);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    width:0%;
+    transition:width .35s ease;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:28px 26px;
+    box-shadow:0 1px 0 var(--line);
+  }
+  .q-index{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--amber);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-size:19px;
+    margin:0 0 20px;
+    font-weight:600;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .opt{
+    text-align:left;
+    background:transparent;
+    border:1.5px solid var(--line);
+    border-radius:3px;
+    padding:12px 14px;
+    font-family:var(--serif);
+    font-size:15.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    display:flex;
+    gap:10px;
+  }
+  .opt:hover:not(:disabled){
+    border-color:var(--accent);
+    background:#f4f6ef;
+  }
+  .opt .tag{
+    font-family:var(--mono);
+    font-weight:700;
+    color:var(--accent-dark);
+    flex-shrink:0;
+  }
+  .opt.correct{
+    border-color:var(--good);
+    background:#e7f1e6;
+  }
+  .opt.wrong{
+    border-color:var(--bad);
+    background:#f6e8e6;
+  }
+  .opt:disabled{
+    cursor:default;
+    opacity:.92;
+  }
+
+  .explain{
+    margin-top:18px;
+    padding:14px 16px;
+    border-left:3px solid var(--accent);
+    background:#eef2ea;
+    font-size:14.5px;
+    display:none;
+  }
+  .explain.show{display:block;}
+
+  .controls{
+    margin-top:24px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  button.next{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:12px 22px;
+    border-radius:3px;
+    cursor:pointer;
+    display:none;
+  }
+  button.next.show{display:inline-block;}
+  button.next:hover{background:var(--accent-dark);}
+
+  /* results */
+  .results{
+    text-align:center;
+    padding:40px 20px;
+  }
+  .score-num{
+    font-family:var(--mono);
+    font-size:64px;
+    font-weight:700;
+    color:var(--accent-dark);
+    margin:0;
+  }
+  .score-label{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#5a5a4f;
+    margin-bottom:26px;
+  }
+  .verdict{
+    font-size:17px;
+    margin-bottom:28px;
+  }
+  .review-list{
+    text-align:left;
+    margin-top:20px;
+  }
+  .review-item{
+    border-top:1px solid var(--line);
+    padding:14px 0;
+    font-size:14.5px;
+  }
+  .review-item .rq{font-weight:600; margin-bottom:6px;}
+  .review-item .ra{font-family:var(--mono); font-size:13px;}
+  .review-item .ra.correct{color:var(--good);}
+  .review-item .ra.wrong{color:var(--bad);}
+
+  button.restart{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    background:transparent;
+    color:var(--ink);
+    border:1.5px solid var(--ink);
+    padding:12px 22px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-top:10px;
+  }
+  button.restart:hover{background:var(--ink); color:var(--paper);}
+
+  footer{
+    text-align:center;
+    font-family:var(--mono);
+    font-size:11px;
+    color:#8a8a7a;
+    margin-top:40px;
+  }
+
+  @media (max-width:480px){
+    h1{font-size:23px;}
+    .card{padding:22px 18px;}
+    .q-text{font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title-block">
+      <div class="eyebrow">CHM 102 &middot; General Chemistry II</div>
+      <h1>Lecture Slide Quiz</h1>
+    </div>
+    <div class="meta" id="meta">Question 1 / 30</div>
+  </header>
+
+  <div class="progress-row">
+    <span id="progress-text">0%</span>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span id="score-text">Score: 0</span>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <footer>Questions generated from CHM 102 lecture slides &mdash; s-block &amp; d-block metals, non-metals, qualitative organic analysis, alcohols/ethers/amines/carbonyls, and kinetics.</footer>
+</div>
+
+<script>
+const questions = [
+  {q:"Group IA metals (alkali metals) have valence shell electron configurations of the form:", opts:["ns\u00b9","ns\u00b2","ns\u00b2np\u00b9","(n-1)d\u00b9\u2070ns\u00b2"], correct:0, explain:"Group IA elements are s-block elements with one electron in the outer s orbital (ns\u00b9), giving them the lowest ionization potentials of any elements."},
+  {q:"Which group IIA metal oxide is described as exhibiting amphoteric behaviour, unlike the other group IIA oxides?", opts:["MgO","CaO","BeO","BaO"], correct:2, explain:"Beryllium oxide is the exception among group IIA oxides \u2014 it behaves amphoterically rather than forming a simple basic hydroxide with water."},
+  {q:"When sodium reacts with oxygen, the main product formed is:", opts:["Na\u2082O (normal oxide)","Na\u2082O\u2082 (peroxide)","NaO\u2082 (superoxide)","NaOH (hydroxide)"], correct:1, explain:"Unlike lithium, which forms the normal oxide Li\u2082O, sodium reacts with oxygen to predominantly form the peroxide Na\u2082O\u2082."},
+  {q:"The superoxide ion is produced when oxygen reacts with which of these metals?", opts:["Lithium","Sodium","Potassium","Beryllium"], correct:2, explain:"Potassium (along with rubidium and caesium) reacts with oxygen to form the superoxide, e.g. K + O\u2082 \u2192 KO\u2082."},
+  {q:"Group IA metals form hydrides with the general formula:", opts:["MH","MH\u2082","MH\u2083","M\u2082H"], correct:0, explain:"Group IA metals form saltlike hydrides of formula MH (e.g. NaH), while group IIA metals form MH\u2082 (e.g. CaH\u2082)."},
+  {q:"The close similarity in charge-to-size ratio between Be\u00b2\u207a and Al\u00b3\u207a, despite being in different periodic table groups, is known as:", opts:["Isomerism","A diagonal relationship","Amphoterism","Metallic bonding"], correct:1, explain:"Because Be and Al sit along a diagonal in the periodic table and have very similar charge-to-size ratios (~0.065 and ~0.060), their chemistries resemble each other \u2014 this is the diagonal relationship."},
+  {q:"Which of the following is an exception to the rule that non-metals are poor conductors of electricity?", opts:["Diamond","Graphite","Iodine","Sulphur"], correct:1, explain:"Graphite is a form of carbon that conducts electricity well, unlike most non-metals, due to its delocalised electrons between layers."},
+  {q:"Which non-metal is unusually a good conductor of heat, unlike most non-metals?", opts:["Graphite","Diamond","Silicon","Boron"], correct:1, explain:"Diamond conducts heat very efficiently through its rigid covalent lattice, making it an exception among non-metals, which are generally poor heat conductors."},
+  {q:"According to the IUPAC definition on the slides, a transition metal is best described as an element that:", opts:["Has a completely filled d orbital","Forms stable ions with an incompletely filled d orbital","Belongs only to the s-block","Is always a strong reducing agent"], correct:1, explain:"IUPAC defines a transition element as one with a partially filled d subshell, or one able to form stable cations with an incompletely filled d orbital."},
+  {q:"The transition elements occupy the short columns in the periodic table between which two groups?", opts:["Group 1A and 2A","Group 2A and 3A","Group 6A and 7A","Group 7A and 8A"], correct:1, explain:"Transition metals sit between group 2A and group 3A, forming the d-block in the centre of the periodic table."},
+  {q:"Each series of the main (d-block) transition elements \u2014 such as the 3d series from Sc to Zn \u2014 consists of how many elements?", opts:["8","10","14","18"], correct:1, explain:"Each d-block series contains ten elements, e.g. the 3d series runs from Sc (Z=21) to Zn (Z=30)."},
+  {q:"Lanthanides and actinides belong to which block of the periodic table?", opts:["s-block","p-block","d-block","f-block"], correct:3, explain:"Lanthanides and actinides are the inner transition elements, referred to as the f-block, where 4f and 5f orbitals are being filled."},
+  {q:"Transition metal compounds are frequently coloured because of:", opts:["s-s electron transitions","d-d electron transitions","Ionic lattice vibrations","p-p electron transitions"], correct:1, explain:"The colour of transition metal compounds arises from d-d transitions of electrons between split d orbitals."},
+  {q:"In the Sodium Fusion Test (Lassaigne's Test), nitrogen, sulphur, phosphorus and halogens in an organic compound are converted into:", opts:["Sodium oxides","Sodium salts (cyanide, sulphide, phosphide, halide)","Sodium carbonate","Sodium hydroxide"], correct:1, explain:"Fusing the organic compound with sodium metal converts N, S, P and halogens into NaCN, Na\u2082S, Na\u2083P and NaX respectively, which are then tested for individually."},
+  {q:"In the sodium fusion filtrate test, formation of a Prussian blue precipitate confirms the presence of:", opts:["Sulphur","Nitrogen","Halogens","Phosphorus"], correct:1, explain:"Adding FeSO\u2084 then FeCl\u2083 and acid to the filtrate produces a Prussian blue (bluish-green) precipitate when nitrogen (as cyanide) is present."},
+  {q:"A black precipitate of lead(II) sulphide forming after adding lead ethanoate solution to the filtrate indicates the presence of:", opts:["Nitrogen","Sulphur","Phosphorus","Chlorine"], correct:1, explain:"Sodium sulphide in the filtrate reacts with lead ethanoate to give a black precipitate of PbS, confirming sulphur."},
+  {q:"In the halogen precipitate test, a white precipitate that is readily soluble in aqueous ammonia indicates the presence of:", opts:["Fluorine","Bromine","Chlorine","Iodine"], correct:2, explain:"Chlorine gives a white silver halide precipitate that dissolves readily in aqueous ammonia, unlike bromine (fade yellow, less soluble) or iodine (yellow, insoluble)."},
+  {q:"A yellow precipitate that is insoluble in aqueous ammonia in the halogen test indicates the presence of:", opts:["Chlorine","Bromine","Iodine","Fluorine"], correct:2, explain:"Iodine forms a yellow silver iodide precipitate that does not dissolve in aqueous ammonia."},
+  {q:"Which purification technique is used for compounds that change directly from solid to vapour on heating?", opts:["Crystallization","Sublimation","Distillation","Chromatography"], correct:1, explain:"Sublimation separates sublimable compounds from non-sublimable impurities by taking advantage of the direct solid-to-vapour transition."},
+  {q:"Fractional distillation separates the components of a mixture primarily based on differences in:", opts:["Solubility","Boiling point","Melting point","Colour"], correct:1, explain:"Fractional distillation relies on differences in boiling points \u2014 the lower boiling fraction vaporises first, followed by higher boiling components."},
+  {q:"Steam distillation is suitable for substances that are:", opts:["Miscible with water only","Steam-volatile and immiscible with water","Non-volatile solids","Soluble only in ethanol"], correct:1, explain:"Steam distillation is used for substances that are steam-volatile and immiscible with water, effectively lowering their distillation temperature."},
+  {q:"Chromatography separates the components of a mixture based on differences in:", opts:["Their boiling points only","The rate at which they move through a stationary phase under a mobile phase","Their densities only","Their melting points only"], correct:1, explain:"Chromatography relies on the differing rates at which mixture components move through a stationary phase, driven by a mobile phase (liquid or gas)."},
+  {q:"Alcohols are defined as organic compounds containing a hydroxyl group (-OH) attached to:", opts:["An aromatic ring only","A saturated carbon atom","A carbonyl carbon","A nitrogen atom"], correct:1, explain:"The slides define alcohols as compounds whose molecules contain -OH groups attached to a saturated carbon atom."},
+  {q:"In aromatic alcohols (phenols), the -OH group is attached:", opts:["To a side-chain carbon away from the ring","Directly to the aromatic ring","To a nitrogen atom","To a carbonyl group"], correct:1, explain:"Phenols are aromatic alcohols in which the -OH is attached directly to the ring, distinguishing them from a typical aliphatic alcohol on a side chain."},
+  {q:"A tertiary alcohol has its hydroxyl-bearing carbon bonded to how many other carbon atoms?", opts:["One","Two","Three","Four"], correct:2, explain:"A tertiary alcohol's carbinol carbon is bonded to three other carbon atoms, compared to one for primary and two for secondary alcohols."},
+  {q:"An alcohol molecule containing two hydroxyl (-OH) groups is classified as:", opts:["Monohydric","Dihydric","Trihydric","Polyhydric"], correct:1, explain:"Alcohols are classed as mono-, di- or trihydric based on having 1, 2 or 3 -OH groups; four or more makes it polyhydric."},
+  {q:"Ethers have the general structural formula:", opts:["R-OH","R-CO-R\u2019","R-O-R\u2019","R-COOH"], correct:2, explain:"Ethers contain an oxygen atom linked to two alkyl (or aryl) groups by single bonds, giving the general formula R-O-R\u2019."},
+  {q:"1,2-diols (vicinal diols) are commonly known by which name, based on the alkene they are made from?", opts:["Amides","Glycols","Phenols","Ketones"], correct:1, explain:"1,2-diols are called glycols, with common names (e.g. ethylene glycol, propylene glycol) taken from the parent alkene."},
+  {q:"In a chemical rate law of the form Rate = k[A]\u1d50[B]\u207f, the overall reaction order is:", opts:["Always equal to 1","The sum of the exponents m and n","Equal to the number of reactant molecules only","Determined only by temperature"], correct:1, explain:"The overall order of a reaction is the sum of the individual reaction orders (the exponents) in its rate law, i.e. m + n."},
+  {q:"According to collision/kinetic theory, raising the temperature of a reaction mixture increases the reaction rate mainly because:", opts:["Reactant molecules shrink in size","Molecules move faster and collide more often with greater energy","The concentration of reactants automatically decreases","Catalysts are generated"], correct:1, explain:"Higher temperature gives reactant molecules more kinetic energy, so they move faster and collide more frequently and more forcefully, increasing the reaction rate."}
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+const userAnswers = [];
+
+const quizArea = document.getElementById('quiz-area');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const scoreText = document.getElementById('score-text');
+const meta = document.getElementById('meta');
+
+function renderQuestion(){
+  answered = false;
+  const q = questions[current];
+  meta.textContent = `Question ${current+1} / ${questions.length}`;
+  progressFill.style.width = `${(current/questions.length)*100}%`;
+  progressText.textContent = `${Math.round((current/questions.length)*100)}%`;
+  scoreText.textContent = `Score: ${score}`;
+
+  const letters = ['A','B','C','D'];
+  quizArea.innerHTML = `
+    <div class="card">
+      <div class="q-index">Q${current+1}</div>
+      <p class="q-text">${q.q}</p>
+      <div class="options">
+        ${q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="tag">${letters[i]}</span><span>${o}</span></button>`).join('')}
+      </div>
+      <div class="explain" id="explain">${q.explain}</div>
+      <div class="controls">
+        <button class="next" id="nextBtn">${current === questions.length-1 ? 'See results' : 'Next question'}</button>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=> selectAnswer(parseInt(btn.dataset.i)));
+  });
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+}
+
+function selectAnswer(i){
+  if(answered) return;
+  answered = true;
+  const q = questions[current];
+  const correct = i === q.correct;
+  if(correct) score++;
+  userAnswers[current] = i;
+
+  document.querySelectorAll('.opt').forEach((btn, idx)=>{
+    btn.disabled = true;
+    if(idx === q.correct) btn.classList.add('correct');
+    else if(idx === i) btn.classList.add('wrong');
+  });
+
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
+  scoreText.textContent = `Score: ${score}`;
+}
+
+function nextQuestion(){
+  if(current < questions.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    renderResults();
+  }
+}
+
+function renderResults(){
+  progressFill.style.width = `100%`;
+  progressText.textContent = `100%`;
+  meta.textContent = `Complete`;
+  const pct = Math.round((score/questions.length)*100);
+  let verdict;
+  if(pct >= 90) verdict = "Excellent \u2014 you've clearly got a strong grip on this material.";
+  else if(pct >= 70) verdict = "Solid work \u2014 a quick review of the missed topics will lock it in.";
+  else if(pct >= 50) verdict = "Fair grasp \u2014 worth going back over the slides on a few of these topics.";
+  else verdict = "Time for another pass through the slides before your next attempt.";
+
+  const reviewHtml = questions.map((q,idx)=>{
+    const ua = userAnswers[idx];
+    const wasCorrect = ua === q.correct;
+    return `
+      <div class="review-item">
+        <div class="rq">${idx+1}. ${q.q}</div>
+        <div class="ra ${wasCorrect ? 'correct' : 'wrong'}">
+          Your answer: ${q.opts[ua] ?? '(skipped)'} ${wasCorrect ? '\u2713' : '\u2717 \u2014 correct: ' + q.opts[q.correct]}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  quizArea.innerHTML = `
+    <div class="card results">
+      <p class="score-num">${score}/${questions.length}</p>
+      <p class="score-label">${pct}% correct</p>
+      <p class="verdict">${verdict}</p>
+      <button class="restart" id="restartBtn">Restart quiz</button>
+      <div class="review-list">${reviewHtml}</div>
+    </div>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', restart);
+}
+
+function restart(){
+  current = 0;
+  score = 0;
+  userAnswers.length = 0;
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
